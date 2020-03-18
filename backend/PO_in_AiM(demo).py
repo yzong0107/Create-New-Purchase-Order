@@ -30,8 +30,46 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "login").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
+    def log_po(self,po_no,supplier_no,item,line_total,WO,phase,material=True):
+        self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
+        """PO main page"""
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").send_keys(supplier_no)
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom1").send_keys("1")
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("1")
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("e-pro")
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("open")
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").send_keys(WO)
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultPhase").send_keys(phase)
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:disbDefaultsLineItem").click()
+        dropdown = self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:disbDefaultsLineItem")
+        dropdown.find_element(By.XPATH, "//option[. = 'Service']").click()
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:disbDefaultsLineItem").click()
+        self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AtermsZoom\\3AtermsZoom01_button > .halflings").click()
+        time.sleep(0.5)
+        """Line item"""
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(WO+" - "+phase)
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").clear()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").send_keys(line_total)
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
+        dropdown = self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue")
+        if material:
+            dropdown.find_element(By.XPATH, "//option[. = 'Material']").click()
+        else:
+            dropdown.find_element(By.XPATH, "//option[. = 'Labor']").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+        """UDF"""
+        self.driver.find_element(By.ID, "mainForm:sideButtonPanel:moreMenu_3").click()
+        self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").send_keys(po_no)
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+        time.sleep(100)
 
 if __name__ == '__main__':
     new_po = PurchaseOrder()
     new_po.setup_method()
     new_po.login()
+    new_po.log_po("UA162443","0000002640","test",100,"288438","001")
