@@ -30,8 +30,11 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "login").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
-    def log_po(self,po_no,supplier_no,item,line_total,WO,phase,material=True):
-        self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
+    def log_po(self,po_no,supplier_no,item,line_total,WO,phase,material=True,first_PO=True):
+        if first_PO:
+            self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
+        else:
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
         """PO main page"""
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").send_keys(supplier_no)
@@ -66,10 +69,18 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
 
         self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
-        time.sleep(100)
+        # time.sleep(100)
 
 if __name__ == '__main__':
+
     new_po = PurchaseOrder()
     new_po.setup_method()
     new_po.login()
-    new_po.log_po("UA162443","0000002640","test",100,"288438","001")
+
+    sheet = pd.read_excel("..\excel input\order_line_list.xlsx", dtype=str)
+    for i in range(3):
+        po_no,_, supplier_no,_, item, line_total, WO, phase,CP = sheet.iloc[i].values
+        first_po = True if i==0 else False
+        new_po.log_po(po_no, supplier_no, item, line_total, WO, phase,material=True,first_PO=first_po)
+
+
