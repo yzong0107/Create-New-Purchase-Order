@@ -71,6 +71,7 @@ class PurchaseOrder():
 
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
         except:
+            #TODO: deal with exceptions
             time.sleep(100)
 
 if __name__ == '__main__':
