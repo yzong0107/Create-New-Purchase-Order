@@ -10,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time
 import getpass
+import openpyxl
+from datetime import datetime
 
 
 class PurchaseOrder():
@@ -30,7 +32,7 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "login").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
-    def log_po(self,po_no,supplier_no,item,line_total,WO,phase,material=True,first_PO=True):
+    def log_po(self,po_no,supplier_no,item,line_total,WO,phase,material,first_PO=True):
         try:
             if first_PO:
                 self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
@@ -58,10 +60,14 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").send_keys(line_total)
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
             dropdown = self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue")
-            if material:
+            if material=="Y":
                 dropdown.find_element(By.XPATH, "//option[. = 'Material']").click()
-            else:
+            elif material=="N":
                 dropdown.find_element(By.XPATH, "//option[. = 'Labor']").click()
+            else:
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                return None
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
             """UDF"""
@@ -70,25 +76,47 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
 
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+            aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
+            return aim_po
         except:
             #TODO: deal with exceptions
             time.sleep(100)
 
+def write_to_log(file_location,row,aim_po):
+    wb = openpyxl.load_workbook(file_location)
+    ws = wb.worksheets[0]
+    if row==0:
+        # id = ws.cell(row=ws.max_row, column=12).value  # get the id of last row at column L
+        # print ("!!!",id)
+        ws.cell(row=1, column=12).value = "AiM PO" #column L
+        ws.cell(row=1, column=13).value = "Time stamp" #column M
+    if aim_po is not None:
+        ws.cell(row=row+2, column=12).value = aim_po  # column L
+        ws.cell(row=row+2, column=13).value = datetime.now()  # column M
+    wb.save(file_location)
+
+
+
 if __name__ == '__main__':
+    file_loc = "..\excel input\download.xlsx"
 
     new_po = PurchaseOrder()
     new_po.setup_method()
     new_po.login()
 
-    sheet = pd.read_excel("..\excel input\order_line_list.xlsx", dtype=str)
-    for i in range(3,6):
-        start_time = time.time()
-        po_no,_, supplier_no,_, item, line_total, WO, phase,CP = sheet.iloc[i].values
+    start_time = time.time()
+    sheet = pd.read_excel(file_loc, dtype=str)
+
+    for i in range(sheet.shape[0]):
+        po_no,_, supplier_no,_, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
         if pd.notna(CP):
             #TODO: handle the PO with CP number
             continue
-        first_po = True if i==3 else False
-        new_po.log_po(po_no, supplier_no, item, line_total, WO, phase,material=True,first_PO=first_po)
-        print ("row {} is processed, time: {}s".format(i+1,time.time()-start_time))
+        first_po = True if i==0 else False
+        aim_po = new_po.log_po(po_no, supplier_no, item, line_total, WO, phase,material,first_PO=first_po)
+        write_to_log(file_loc,i,aim_po)
+        print ("row {} is processed, AiM PO is : {}".format(i+1,aim_po))
+    time_taken = time.time()-start_time
+    print ("Done! Time taken {:.2f}({:.2f})".format(time_taken,time_taken/60))
 
 
