@@ -98,7 +98,7 @@ def write_to_log(file_location,row,aim_po):
 
 
 if __name__ == '__main__':
-    file_loc = "..\excel input\download.xlsx"
+    file_loc = "..\excel file\download.xlsx"
 
     new_po = PurchaseOrder()
     new_po.setup_method()
@@ -115,8 +115,12 @@ if __name__ == '__main__':
         first_po = True if i==0 else False
         aim_po = new_po.log_po(po_no, supplier_no, item, line_total, WO, phase,material,first_PO=first_po)
         write_to_log(file_loc,i,aim_po)
-        print ("row {} is processed, AiM PO is : {}".format(i+1,aim_po))
+        print ("row {} is processed, AiM PO is : {}".format(i+2,aim_po))
     time_taken = time.time()-start_time
-    print ("Done! Time taken {:.2f}({:.2f})".format(time_taken,time_taken/60))
+    print("")
+    print("***************************************")
+    print("Done! Time taken: {:.2f}s ({:.2f}min)".format(time_taken, time_taken / 60.))
+    print("Please go to excel file to double check")
+    print("***************************************")
 
 
