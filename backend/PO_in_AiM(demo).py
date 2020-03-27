@@ -3,6 +3,8 @@ __author__ = "Tim Zong (yzong@ualberta.ca)"
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from openpyxl.styles import PatternFill
+from openpyxl.styles.colors import YELLOW
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
@@ -40,6 +42,7 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             """PO main page"""
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
+            WebDriverWait(self.driver,5).until(lambda driver:self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").get_attribute("value")==item)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom1").send_keys("1")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("1")
@@ -56,6 +59,7 @@ class PurchaseOrder():
             """Line item"""
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(WO+" - "+phase)
+            WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").get_attribute("value")==(WO+" - "+phase))
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").clear()
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").send_keys(line_total)
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
@@ -89,10 +93,14 @@ def write_to_log(file_location,row,aim_po):
         # id = ws.cell(row=ws.max_row, column=12).value  # get the id of last row at column L
         # print ("!!!",id)
         ws.cell(row=1, column=12).value = "AiM PO" #column L
+        ws.cell(row=1, column=12).fill = PatternFill(fgColor=YELLOW, fill_type = "solid")
         ws.cell(row=1, column=13).value = "Time stamp" #column M
+        ws.cell(row=1, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
     if aim_po is not None:
         ws.cell(row=row+2, column=12).value = aim_po  # column L
+        ws.cell(row=row+2, column=12).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
         ws.cell(row=row+2, column=13).value = datetime.now()  # column M
+        ws.cell(row=row+2, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
     wb.save(file_location)
 
 
@@ -107,7 +115,8 @@ if __name__ == '__main__':
     start_time = time.time()
     sheet = pd.read_excel(file_loc, dtype=str)
 
-    for i in range(sheet.shape[0]):
+    # for i in range(sheet.shape[0]):
+    for i in range(3):
         po_no,_, supplier_no,_, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
         if pd.notna(CP):
             #TODO: handle the PO with CP number
