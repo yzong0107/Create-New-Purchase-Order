@@ -8,11 +8,11 @@
 
 3. A successful running should generate the screenshot below. 
 
-   ![success run](images/success_run.PNG)
+   ![success run](images/success_run.png)
 
 4. In any circumstances the program crushes, it should throw out an error like below. Please take a screenshots and contact Tim Zong for help.
 
-![errors](images/error_example.PNG)
+![errors](images/error_example.png)
 
 # Important Notes for Users
 
