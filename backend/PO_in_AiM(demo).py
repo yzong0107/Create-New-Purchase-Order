@@ -12,6 +12,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time
 import getpass
+import traceback
 import openpyxl
 from datetime import datetime
 
@@ -34,19 +35,29 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "login").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
-    def log_po(self,po_no,supplier_no,item,line_total,WO,phase,material,first_PO=True):
+    def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,first_PO=True):
         try:
             if first_PO:
                 self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
             else:
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             """PO main page"""
+            item = item.upper() #convert description to upper case
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
             WebDriverWait(self.driver,5).until(lambda driver:self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").get_attribute("value")==item)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom1").send_keys("1")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("1")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("e-pro")
+            full_name = person.split(" ")
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:placedbyZoom:placedbyZoom0").clear()
+            self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AplacedbyZoom\\3AplacedbyZoom0_button > .halflings").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
+            self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_fname").send_keys(full_name[0])
+            self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_lname").send_keys(full_name[-1])
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:executeSearch").click()
+            self.driver.find_element(By.ID, "mainForm:zoomTable:0:ae_h_emp_e_shop_person").click()
+
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("open")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").send_keys(WO)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultPhase").send_keys(phase)
@@ -79,6 +90,7 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").send_keys(po_no)
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
             """Change status to Finalized"""
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
 
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
@@ -86,6 +98,7 @@ class PurchaseOrder():
             return aim_po
         except:
             #TODO: deal with exceptions
+            print(traceback.format_exc())
             time.sleep(100)
 
 def write_to_log(file_location,row,aim_po):
@@ -117,14 +130,14 @@ if __name__ == '__main__':
     start_time = time.time()
     sheet = pd.read_excel(file_loc, dtype=str)
 
-    # for i in range(sheet.shape[0]):
-    for i in range(3):
-        po_no,_, supplier_no,_, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
+    for i in range(sheet.shape[0]):
+    # for i in range(3):
+        po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
         if pd.notna(CP):
             #TODO: handle the PO with CP number
             continue
         first_po = True if i==0 else False
-        aim_po = new_po.log_po(po_no, supplier_no, item, line_total, WO, phase,material,first_PO=first_po)
+        aim_po = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,first_PO=first_po)
         write_to_log(file_loc,i,aim_po)
         print ("row {} is processed, AiM PO is : {}".format(i+2,aim_po))
     time_taken = time.time()-start_time
