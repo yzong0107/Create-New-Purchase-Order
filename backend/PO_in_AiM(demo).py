@@ -78,6 +78,8 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:sideButtonPanel:moreMenu_3").click()
             self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").send_keys(po_no)
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+            """Change status to Finalized"""
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
 
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
             aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
