@@ -67,7 +67,7 @@ class PurchaseOrder():
             if material=="Y":
                 dropdown.find_element(By.XPATH, "//option[. = 'Material']").click()
             elif material=="N":
-                dropdown.find_element(By.XPATH, "//option[. = 'Labor']").click()
+                dropdown.find_element(By.XPATH, "//option[. = 'Contract']").click()
             else:
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
