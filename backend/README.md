@@ -17,8 +17,15 @@
 # Important Notes for Users
 
 1. The excel file to be processed should always be "**download.xlsx**"
-4. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM.
-5. If there are any questions or improvement suggestions, feel free to contact Tim.
+2. Before running the RPA program, the excel file should be edited. Column K's value should either be "Y" or "N", indicating if this PO's subledger is "Material" or "Contract". Otherwise, the corresponding row won't be processed.
+
+![excel edit](images/excel_edit.png)
+
+3. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column L and M are **auto generated** by this RPA program.
+
+   ![excel output](images/excel_output.png)
+
+4. If there are any questions or improvement suggestions, feel free to contact Tim.
 
 
 
