@@ -1,3 +1,3 @@
-cd "%~dp0"
-echo "Placeholder to run Prod"
+cd "%~dp0/backend"
+python PO_in_AiM(prod).py
 pause
