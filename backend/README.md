@@ -16,12 +16,12 @@
 
 # Important Notes for Users
 
-1. The excel file to be processed should always be "**download.xlsx**"
-2. Before running the RPA program, the excel file should be edited. Column K's value should either be "Y" or "N", indicating if this PO's subledger is "Material" or "Contract". Otherwise, the corresponding row won't be processed.
+1. The excel file to be processed should be put in *"V:\Purchasing Astro Boy\commitment files\Input"* folder, and there should **only** be a single excel file (.xlsx) there.
+2. Before running the RPA program, the excel file should be edited. Column K's value should either be *"Material"* or *"Contract"*, indicating if this PO's subledger is "Material" or "Contract". Otherwise, the corresponding row won't be processed.
 
 ![excel edit](images/excel_edit.png)
 
-3. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column L and M are **auto generated** by this RPA program.
+3. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column L, M and N are **auto generated** by this RPA program. Please manually check those error messages.
 
    ![excel output](images/excel_output.png)
 
@@ -37,9 +37,13 @@
 
    ```conda create --name selenium_env python==3.7 –y```
 
-3. Once it's created you can activate it by running: ```conda activate selenium_env```
+3. Once it's created you can activate it by running: 
 
-4. Go to the current directory, run ```pip install -r requirements.txt``` under the activated virtual environment
+   ```conda activate selenium_env```
+
+4. Go to the current directory, run the code under the activated virtual environment
+
+   ```pip install -r requirements.txt``` 
 
 5. Setup environment variables for Windows 10 System. Typical path is :C:\Users\user_ID\AppData\Local\Continuum\miniconda3\envs\selenium_env
 
