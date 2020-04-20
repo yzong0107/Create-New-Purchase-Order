@@ -15,7 +15,8 @@ import getpass
 import traceback
 import openpyxl
 from datetime import datetime
-
+import glob
+import numpy as np
 
 class PurchaseOrder():
     def setup_method(self):
@@ -37,6 +38,7 @@ class PurchaseOrder():
 
     def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,first_PO=True):
         try:
+            line_item = WO + " - " + phase
             if first_PO:
                 self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
             else:
@@ -69,7 +71,7 @@ class PurchaseOrder():
             time.sleep(0.5)
             """Line item"""
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
-            line_item = WO+" - "+phase
+
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").click()
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(line_item)
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").get_attribute("value")==line_item)
@@ -77,19 +79,21 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").send_keys(line_total)
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
             dropdown = self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue")
-            if material=="Y":
+            if material.upper()=="MATERIAL":
                 dropdown.find_element(By.XPATH, "//option[. = 'Material']").click()
-            elif material=="N":
+            elif material.upper()=="CONTRACT":
                 dropdown.find_element(By.XPATH, "//option[. = 'Contract']").click()
             else:
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
-                return None
+                error_message = "Please type in 'Material' or 'Contract' to indicate this PO's subledger"
+                return None,error_message
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
             """UDF"""
             self.driver.find_element(By.ID, "mainForm:sideButtonPanel:moreMenu_3").click()
             self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").send_keys(po_no)
+            WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").get_attribute("value")==po_no)
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
             """Change status to Finalized"""
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
@@ -97,33 +101,50 @@ class PurchaseOrder():
 
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
             aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
-            return aim_po
+            return aim_po,None
         except:
             #TODO: deal with exceptions
-            print(traceback.format_exc())
-            time.sleep(100)
-
-def write_to_log(file_location,row,aim_po):
+            error_message = self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:messages").text
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            return None,error_message
+def write_to_log_title(file_location):
     wb = openpyxl.load_workbook(file_location)
     ws = wb.worksheets[0]
-    if row==0:
-        # id = ws.cell(row=ws.max_row, column=12).value  # get the id of last row at column L
-        # print ("!!!",id)
-        ws.cell(row=1, column=12).value = "AiM PO" #column L
-        ws.cell(row=1, column=12).fill = PatternFill(fgColor=YELLOW, fill_type = "solid")
-        ws.cell(row=1, column=13).value = "Time stamp" #column M
-        ws.cell(row=1, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    ws.cell(row=1, column=12).value = "AiM PO"  # column L
+    ws.cell(row=1, column=12).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    ws.cell(row=1, column=13).value = "Time stamp"  # column M
+    ws.cell(row=1, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    ws.cell(row=1, column=14).value = "Error Messages"  # column M
+    ws.cell(row=1, column=14).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    wb.save(file_location)
+
+def write_to_log(file_location,row,aim_po,error):
+    wb = openpyxl.load_workbook(file_location)
+    ws = wb.worksheets[0]
     if aim_po is not None:
         ws.cell(row=row+2, column=12).value = aim_po  # column L
         ws.cell(row=row+2, column=12).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
         ws.cell(row=row+2, column=13).value = datetime.now()  # column M
         ws.cell(row=row+2, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row+2, column=14).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    elif error is not None:
+        ws.cell(row=row + 2, column=14).value = error  # column M
+        ws.cell(row=row + 2, column=14).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row + 2, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row + 2, column=12).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
     wb.save(file_location)
 
 
 
 if __name__ == '__main__':
-    file_loc = "..\excel file\download.xlsx"
+    # file_loc = "..\excel file\download.xlsx"
+
+    file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
+    write_to_log_title(file_loc)
+    # xls = pd.ExcelFile(file_loc)
+    # sheet = xls.parse(0)
+    # sheet = sheet.astype(str)
+
 
     new_po = PurchaseOrder()
     new_po.setup_method()
@@ -131,16 +152,18 @@ if __name__ == '__main__':
 
     start_time = time.time()
     sheet = pd.read_excel(file_loc, dtype=str)
-
+    first_po = True
     for i in range(sheet.shape[0]):
     # for i in range(3):
         po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
         if pd.notna(CP):
+        # if CP!=np.nan:
             #TODO: handle the PO with CP number
+            print ("row {} is NOT processed, as CP is not null".format(i+2))
             continue
-        first_po = True if i==0 else False
-        aim_po = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,first_PO=first_po)
-        write_to_log(file_loc,i,aim_po)
+        aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,first_PO=first_po)
+        write_to_log(file_loc,i,aim_po,error)
+        first_po = False
         print ("row {} is processed, AiM PO is : {}".format(i+2,aim_po))
     time_taken = time.time()-start_time
     print("")
