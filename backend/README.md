@@ -1,22 +1,23 @@
 # To Run the program
 
-1. Double click run.bat file. Make sure downloads.xlsx is **NOT** open.
+1. The excel file to be processed should be put in *"V:\Purchasing Astro Boy\commitment files\Input"* folder, and there should **only** be a single excel file (.xlsx) there.
 
-2. Fill in the AiM login username and password in the command line window, note that the password won't be shown on the screen. Click enter and the program will continue.
+2. Double click run.bat file. Make sure downloads.xlsx is **NOT** open.
+
+3. Fill in the AiM login username and password in the command line window, note that the password won't be shown on the screen. Click enter and the program will continue.
 
    ![CMD login screenshots](images/screenshots1.PNG)
 
-3. A successful running should generate the screenshot below. 
+4. A successful running should generate the screenshot below. 
 
    ![success run](images/success_run.png)
 
-4. In any circumstances the program crushes, it should throw out an error like below. Please take a screenshots and contact Tim Zong for help.
+5. In any circumstances the program crushes, it should throw out an error like below. Please take a screenshots and contact Tim Zong for help.
 
 ![errors](images/error_example.png)
 
 # Important Notes for Users
 
-1. The excel file to be processed should be put in *"V:\Purchasing Astro Boy\commitment files\Input"* folder, and there should **only** be a single excel file (.xlsx) there.
 2. Before running the RPA program, the excel file should be edited. Column K's value should either be *"Material"* or *"Contract"*, indicating if this PO's subledger is "Material" or "Contract". Otherwise, the corresponding row won't be processed.
 
 ![excel edit](images/excel_edit.png)
