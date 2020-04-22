@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.common.exceptions import NoSuchElementException
 import time
 import getpass
 import traceback
@@ -71,7 +72,6 @@ class PurchaseOrder():
             time.sleep(0.5)
             """Line item"""
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
-
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").click()
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(line_item)
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").get_attribute("value")==line_item)
@@ -102,11 +102,57 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
             aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
             return aim_po,None
-        except:
-            #TODO: deal with exceptions
+        except NoSuchElementException:
             error_message = self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:messages").text
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
             return None,error_message
+
+    def multiple_lines(self,WO,phase,line_total,material):
+        """Change status back to open"""
+        line_item = WO + " - " + phase
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:edit").click()
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("open")
+        self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3ApoStatusZoom\\3Alevel0_button > .halflings").click()
+        time.sleep(0.5)
+        """Add a new line"""
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
+        self.driver.find_element(By.ID, "mainForm:PO_ADD_LINE_ITEM_content:inentorytype3").click()
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:zoomNext").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(line_item)
+        WebDriverWait(self.driver, 5).until(
+            lambda driver: self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").get_attribute("value") == line_item)
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").clear()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:amountValueServices").send_keys(line_total)
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
+        dropdown = self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue")
+        if material.upper() == "MATERIAL":
+            dropdown.find_element(By.XPATH, "//option[. = 'Material']").click()
+        elif material.upper() == "CONTRACT":
+            dropdown.find_element(By.XPATH, "//option[. = 'Contract']").click()
+        else:
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            error_message = "Please type in 'Material' or 'Contract' to indicate this PO's subledger"
+            return None, error_message
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:oldPoDisburList:0:seqLink").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:wophaseZoom:wophaseZoom0").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:wophaseZoom:wophaseZoom0").send_keys(WO)
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:wophaseZoom:wophaseZoom1").click()
+        self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:wophaseZoom:wophaseZoom1").send_keys(phase)
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+
+        """Change status to Finalized"""
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
+        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+        aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
+        return aim_po, None
+
+
 def write_to_log_title(file_location):
     wb = openpyxl.load_workbook(file_location)
     ws = wb.worksheets[0]
@@ -137,13 +183,8 @@ def write_to_log(file_location,row,aim_po,error):
 
 
 if __name__ == '__main__':
-    # file_loc = "..\excel file\download.xlsx"
-
     file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
     write_to_log_title(file_loc)
-    # xls = pd.ExcelFile(file_loc)
-    # sheet = xls.parse(0)
-    # sheet = sheet.astype(str)
 
 
     new_po = PurchaseOrder()
@@ -157,10 +198,15 @@ if __name__ == '__main__':
     # for i in range(3):
         po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
         if pd.notna(CP):
-        # if CP!=np.nan:
             #TODO: handle the PO with CP number
             print ("row {} is NOT processed, as CP is not null".format(i+2))
             continue
+        if i>0:
+            if sheet.iloc[i,0]==sheet.iloc[i-1,0]:#if this line has same PO number to the line above
+                aim_po, error = new_po.multiple_lines(WO,phase,line_total,material)
+                write_to_log(file_loc, i, aim_po, error)
+                print("row {} is processed, AiM PO is : {}".format(i + 2, aim_po))
+                continue
         aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,first_PO=first_po)
         write_to_log(file_loc,i,aim_po,error)
         first_po = False
