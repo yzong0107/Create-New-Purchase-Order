@@ -70,8 +70,14 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:disbDefaultsLineItem").click()
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AtermsZoom\\3AtermsZoom01_button > .halflings").click()
             time.sleep(0.5)
-            """Line item"""
-            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
+            try:
+                """Line item"""
+                self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
+            except NoSuchElementException:
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                error_message = "Supplier may not exists in AiM, please double check"
+                return None, error_message
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").click()
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(line_item)
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").get_attribute("value")==line_item)
@@ -146,7 +152,14 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
 
         """Change status to Finalized"""
-        self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
+        try:
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
+        except NoSuchElementException:
+            error_message = self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:messages").text
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            return None, error_message
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
         self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
         aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
@@ -194,21 +207,24 @@ if __name__ == '__main__':
     start_time = time.time()
     sheet = pd.read_excel(file_loc, dtype=str)
     first_po = True
+    saved_PO=[]
     for i in range(sheet.shape[0]):
-    # for i in range(3):
+        saved_PO = list(set(saved_PO))
         po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
         if pd.notna(CP):
             #TODO: handle the PO with CP number
             print ("row {} is NOT processed, as CP is not null".format(i+2))
             continue
         if i>0:
-            if sheet.iloc[i,0]==sheet.iloc[i-1,0]:#if this line has same PO number to the line above
+            if sheet.iloc[i,0]==sheet.iloc[i-1,0] and sheet.iloc[i,0] in saved_PO:#if this line has same PO number to the line above
                 aim_po, error = new_po.multiple_lines(WO,phase,line_total,material)
                 write_to_log(file_loc, i, aim_po, error)
                 print("row {} is processed, AiM PO is : {}".format(i + 2, aim_po))
                 continue
         aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,first_PO=first_po)
         write_to_log(file_loc,i,aim_po,error)
+        if error is None:
+            saved_PO.append(sheet.iloc[i,0])
         first_po = False
         print ("row {} is processed, AiM PO is : {}".format(i+2,aim_po))
     time_taken = time.time()-start_time
