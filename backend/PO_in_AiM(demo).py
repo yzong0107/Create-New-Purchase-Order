@@ -207,22 +207,24 @@ if __name__ == '__main__':
     start_time = time.time()
     sheet = pd.read_excel(file_loc, dtype=str)
     first_po = True
-    error = None
+    saved_PO=[]
     for i in range(sheet.shape[0]):
-    # for i in range(3):
+        saved_PO = list(set(saved_PO))
         po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
         if pd.notna(CP):
             #TODO: handle the PO with CP number
             print ("row {} is NOT processed, as CP is not null".format(i+2))
             continue
         if i>0:
-            if sheet.iloc[i,0]==sheet.iloc[i-1,0] and error is None:#if this line has same PO number to the line above
+            if sheet.iloc[i,0]==sheet.iloc[i-1,0] and sheet.iloc[i,0] in saved_PO:#if this line has same PO number to the line above
                 aim_po, error = new_po.multiple_lines(WO,phase,line_total,material)
                 write_to_log(file_loc, i, aim_po, error)
                 print("row {} is processed, AiM PO is : {}".format(i + 2, aim_po))
                 continue
         aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,first_PO=first_po)
         write_to_log(file_loc,i,aim_po,error)
+        if error is None:
+            saved_PO.append(sheet.iloc[i,0])
         first_po = False
         print ("row {} is processed, AiM PO is : {}".format(i+2,aim_po))
     time_taken = time.time()-start_time
