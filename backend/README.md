@@ -18,15 +18,15 @@
 
 # Important Notes for Users
 
-2. Before running the RPA program, the excel file should be edited. Column K's value should either be *"Material"* or *"Contract"*, indicating if this PO's subledger is "Material" or "Contract". Otherwise, the corresponding row won't be processed.
+1. Before running the RPA program, the excel file should be edited. Column K's value should either be *"Material"* or *"Contract"*, indicating if this PO's subledger is "Material" or "Contract". Otherwise, the corresponding row won't be processed.
 
 ![excel edit](images/excel_edit.png)
 
-3. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column L, M and N are **auto generated** by this RPA program. Please manually check those error messages.
+2. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column L, M and N are **auto generated** by this RPA program. Please manually check those error messages.
 
-   ![excel output](images/excel_output.png)
+![excel output](images/excel_output.png)
 
-4. If there are any questions or improvement suggestions, feel free to contact Tim.
+3. If there are any questions or improvement suggestions, feel free to contact Tim.
 
 
 
