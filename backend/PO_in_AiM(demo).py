@@ -39,6 +39,8 @@ class PurchaseOrder():
 
     def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,first_PO=True):
         try:
+            if pd.isna(WO): WO=""
+            if pd.isna(phase): phase = ""
             line_item = WO + " - " + phase
             if first_PO:
                 self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
@@ -96,11 +98,18 @@ class PurchaseOrder():
                 return None,error_message
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
-            """UDF"""
-            self.driver.find_element(By.ID, "mainForm:sideButtonPanel:moreMenu_3").click()
-            self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").send_keys(po_no)
-            WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").get_attribute("value")==po_no)
-            self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+            try:#2020-04-30: when WO or phase is empty
+                """UDF"""
+                self.driver.find_element(By.ID, "mainForm:sideButtonPanel:moreMenu_3").click()
+                self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").send_keys(po_no)
+                WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").get_attribute("value")==po_no)
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+            except:
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+                error_message = self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:messages").text
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                return None, error_message
             """Change status to Finalized"""
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
