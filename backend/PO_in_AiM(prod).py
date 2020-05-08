@@ -11,6 +11,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import getpass
 import traceback
@@ -42,19 +43,20 @@ class PurchaseOrder():
             if pd.isna(WO): WO=""
             if pd.isna(phase): phase = ""
             line_item = WO + " - " + phase
+            item = item.upper()  # convert description to upper case
+            full_name = person.split(" ")
             if first_PO:
                 self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
             else:
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             """PO main page"""
-            item = item.upper() #convert description to upper case
+            WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, 'mainForm:PO_EDIT_content:ae_i_poe_e_description')))
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
             WebDriverWait(self.driver,5).until(lambda driver:self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").get_attribute("value")==item)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom1").send_keys("1")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("1")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("e-pro")
-            full_name = person.split(" ")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:placedbyZoom:placedbyZoom0").clear()
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AplacedbyZoom\\3AplacedbyZoom0_button > .halflings").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
@@ -101,6 +103,7 @@ class PurchaseOrder():
             try:#2020-04-30: when WO or phase is empty
                 """UDF"""
                 self.driver.find_element(By.ID, "mainForm:sideButtonPanel:moreMenu_3").click()
+                time.sleep(0.3)
                 self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").send_keys(po_no)
                 WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_UDF_EDIT_content:ae_i_poe_e_udf_custom001").get_attribute("value")==po_no)
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
@@ -133,6 +136,7 @@ class PurchaseOrder():
         """Add a new line"""
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
         self.driver.find_element(By.ID, "mainForm:PO_ADD_LINE_ITEM_content:inentorytype3").click()
+        time.sleep(0.2)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:zoomNext").click()
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").click()
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(line_item)
