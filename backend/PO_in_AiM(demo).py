@@ -38,12 +38,12 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "login").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
-    def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,first_PO=True):
+    def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,currency,first_PO=True):
         try:
             if pd.isna(WO): WO=""
             if pd.isna(phase): phase = ""
-            line_item = WO + " - " + phase
             item = item.upper()  # convert description to upper case
+            line_item = WO + " - " + phase +"\n"+ item
             full_name = person.split(" ")
             if first_PO:
                 self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
@@ -55,7 +55,11 @@ class PurchaseOrder():
             WebDriverWait(self.driver,5).until(lambda driver:self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").get_attribute("value")==item)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom1").send_keys("1")
-            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("1")
+            if currency=="USD":
+                #updates May 13, 2020
+                self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("3")
+            else:
+                self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("1")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("e-pro")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:placedbyZoom:placedbyZoom0").clear()
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AplacedbyZoom\\3AplacedbyZoom0_button > .halflings").click()
@@ -125,9 +129,9 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
             return None,error_message
 
-    def multiple_lines(self,WO,phase,line_total,material):
+    def multiple_lines(self,item,WO,phase,line_total,material):
         """Change status back to open"""
-        line_item = WO + " - " + phase
+        line_item = WO + " - " + phase + "\n" + item.upper() #update on May 13, 2020
         self.driver.find_element(By.ID, "mainForm:buttonPanel:edit").click()
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("open")
@@ -162,6 +166,7 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:wophaseZoom:wophaseZoom1").click()
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:wophaseZoom:wophaseZoom1").send_keys(phase)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+        time.sleep(0.5)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
 
         """Change status to Finalized"""
@@ -179,38 +184,38 @@ class PurchaseOrder():
         return aim_po, None
 
 
-def write_to_log_title(file_location):
+def write_to_log_title(file_location,col_num):
     wb = openpyxl.load_workbook(file_location)
     ws = wb.worksheets[0]
-    ws.cell(row=1, column=12).value = "AiM PO"  # column L
-    ws.cell(row=1, column=12).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
-    ws.cell(row=1, column=13).value = "Time stamp"  # column M
-    ws.cell(row=1, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
-    ws.cell(row=1, column=14).value = "Error Messages"  # column M
-    ws.cell(row=1, column=14).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    ws.cell(row=1, column=col_num+1).value = "AiM PO(demo)"  # column N
+    ws.cell(row=1, column=col_num+1).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    ws.cell(row=1, column=col_num+2).value = "Time stamp(demo)"  # column O
+    ws.cell(row=1, column=col_num+2).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+    ws.cell(row=1, column=col_num+3).value = "Error Messages(demo)"  # column P
+    ws.cell(row=1, column=col_num+3).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
     wb.save(file_location)
 
-def write_to_log(file_location,row,aim_po,error):
+def write_to_log(file_location,row,aim_po,error,col_num):
     wb = openpyxl.load_workbook(file_location)
     ws = wb.worksheets[0]
     if aim_po is not None:
-        ws.cell(row=row+2, column=12).value = aim_po  # column L
-        ws.cell(row=row+2, column=12).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
-        ws.cell(row=row+2, column=13).value = datetime.now()  # column M
-        ws.cell(row=row+2, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
-        ws.cell(row=row+2, column=14).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row+2, column=col_num+1).value = aim_po  # column N
+        ws.cell(row=row+2, column=col_num+1).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row+2, column=col_num+2).value = datetime.now()  # column O
+        ws.cell(row=row+2, column=col_num+2).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row+2, column=col_num+3).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
     elif error is not None:
-        ws.cell(row=row + 2, column=14).value = error  # column M
-        ws.cell(row=row + 2, column=14).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
-        ws.cell(row=row + 2, column=13).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
-        ws.cell(row=row + 2, column=12).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row + 2, column=col_num+3).value = error  # column P
+        ws.cell(row=row + 2, column=col_num+3).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row + 2, column=col_num+2).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
+        ws.cell(row=row + 2, column=col_num+1).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
     wb.save(file_location)
 
 
 
 if __name__ == '__main__':
-    file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
-    write_to_log_title(file_loc)
+    # file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
+    file_loc = glob.glob('..\excel file\*.xlsx')[0]
 
 
     new_po = PurchaseOrder()
@@ -219,23 +224,26 @@ if __name__ == '__main__':
 
     start_time = time.time()
     sheet = pd.read_excel(file_loc, dtype=str)
+    col_num = sheet.shape[1]
+    write_to_log_title(file_loc,col_num)
     first_po = True
     saved_PO=[]
     for i in range(sheet.shape[0]):
         saved_PO = list(set(saved_PO))
         po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
+        currency,_ = sheet.iloc[i,11:13].values
         if pd.notna(CP):
             #TODO: handle the PO with CP number
             print ("row {} is NOT processed, as CP is not null".format(i+2))
             continue
         if i>0:
             if sheet.iloc[i,0]==sheet.iloc[i-1,0] and sheet.iloc[i,0] in saved_PO:#if this line has same PO number to the line above
-                aim_po, error = new_po.multiple_lines(WO,phase,line_total,material)
-                write_to_log(file_loc, i, aim_po, error)
+                aim_po, error = new_po.multiple_lines(item,WO,phase,line_total,material)
+                write_to_log(file_loc, i, aim_po, error,col_num)
                 print("row {} is processed, AiM PO is : {}".format(i + 2, aim_po))
                 continue
-        aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,first_PO=first_po)
-        write_to_log(file_loc,i,aim_po,error)
+        aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,material,currency,first_PO=first_po)
+        write_to_log(file_loc,i,aim_po,error,col_num)
         if error is None:
             saved_PO.append(sheet.iloc[i,0])
         first_po = False
