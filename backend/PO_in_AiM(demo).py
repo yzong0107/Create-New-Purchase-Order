@@ -29,6 +29,7 @@ class PurchaseOrder():
         self.driver.quit()
 
     def login(self):
+        #TODO: remember to update demo to prod
         self.driver.get("https://www.aimdemo.ualberta.ca/fmax/screen/WORKDESK")
         self.driver.set_window_size(1900, 1020)
         username = input('Enter your username: ')
@@ -38,6 +39,16 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "login").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
+    def search_PO(self,po_no):
+        self.driver.find_element(By.ID, "mainForm:ae_i_poe_e_description").clear()
+        time.sleep(0.5)
+        self.driver.find_element(By.ID, "mainForm:ae_i_poe_e_description").send_keys(po_no)
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:executeSearch").click()
+        try:
+            self.driver.find_element(By.ID, "mainForm:browse:0:ae_i_poe_e_po_code").click()
+            return True
+        except:
+            return False
     def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,currency,first_PO=True):
         try:
             if pd.isna(WO): WO=""
@@ -46,9 +57,17 @@ class PurchaseOrder():
             line_item = WO + " - " + phase +"\n"+ item
             full_name = person.split(" ")
             if first_PO:
-                self.driver.find_element(By.ID, "mainForm:menuListMain:new_PO_VIEW").click()
+                self.driver.find_element(By.ID, "mainForm:menuListMain:search_PO_VIEW").click()
+                if self.search_PO(po_no):
+                    return None,"PO number already exists in AiM"
+                else:
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             else:
-                self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
+                if self.search_PO(po_no):
+                    return None, "PO number already exists in AiM"
+                else:
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             """PO main page"""
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, 'mainForm:PO_EDIT_content:ae_i_poe_e_description')))
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
@@ -187,6 +206,7 @@ class PurchaseOrder():
 def write_to_log_title(file_location,col_num):
     wb = openpyxl.load_workbook(file_location)
     ws = wb.worksheets[0]
+    # TODO: remember to update demo to prod
     ws.cell(row=1, column=col_num+1).value = "AiM PO(demo)"  # column N
     ws.cell(row=1, column=col_num+1).fill = PatternFill(fgColor=YELLOW, fill_type="solid")
     ws.cell(row=1, column=col_num+2).value = "Time stamp(demo)"  # column O
@@ -214,8 +234,7 @@ def write_to_log(file_location,row,aim_po,error,col_num):
 
 
 if __name__ == '__main__':
-    # file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
-    file_loc = glob.glob('..\excel file\*.xlsx')[0]
+    file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
 
 
     new_po = PurchaseOrder()
