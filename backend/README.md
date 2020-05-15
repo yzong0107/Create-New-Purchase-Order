@@ -22,7 +22,7 @@
 
 ![excel edit](images/excel_edit.png)
 
-2. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column N, O and P are **auto generated** by this RPA program. Please manually check those error messages.
+2. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column N, O and P are **auto generated** by this RPA program. Please manually check those error messages. Notice the new columns end with *"(demo) "*or *"(prod)"*
 
 ![excel output](images/excel_output.png)
 
