@@ -39,8 +39,39 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "login").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
+    def search_WO(self,WO,phase):
+        self.driver.find_element(By.ID, "mainForm:headerInclude:aimTitle1").click()
+        self.driver.find_element(By.ID, "mainForm:menuListMain:WORKMGT").click()
+        self.driver.find_element(By.ID, "mainForm:menuListMain:search_WO_VIEW").click()
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:reset").click()
+        self.driver.find_element(By.ID, "mainForm:ae_p_pro_e_proposal").click()
+        self.driver.find_element(By.ID, "mainForm:ae_p_pro_e_proposal").send_keys(WO)
+        self.driver.find_element(By.ID, "mainForm:ae_p_phs_e_sort_code").click()
+        self.driver.find_element(By.ID, "mainForm:ae_p_phs_e_sort_code").send_keys(phase)
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:executeSearch").click()
+        try:
+            self.driver.find_element(By.ID, "mainForm:browse:0:ae_p_pro_e_proposal").click()
+            xpath ="//a[contains(text(),\'"+phase+"\')]"
+            self.driver.find_element(By.XPATH, xpath).click()
+            """save four lines below, in case xpath crashes"""
+            # mytable = self.driver.find_element(By.ID,"mainForm:WO_VIEW_content:oldPhaseList")
+            # for row in mytable.find_elements_by_css_selector('tr'):
+            #     for cell in row.find_elements_by_tag_name('td'):
+            #         print(cell.text)
+            cppo = self.driver.find_element(By.ID, "mainForm:PHASE_VIEW_content:cpCompZoom:cpZoom0").text
+            self.driver.find_element(By.ID, "mainForm:headerInclude:aimTitle1").click()
+            self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
+            if cppo.strip()!="":
+                return cppo
+            else:
+                return None
+        except NoSuchElementException:
+            self.driver.find_element(By.ID, "mainForm:headerInclude:aimTitle1").click()
+            self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
+            return None
+
     def search_PO(self,po_no):
-        self.driver.find_element(By.ID, "mainForm:ae_i_poe_e_description").clear()
+        self.driver.find_element(By.ID,"mainForm:buttonPanel:reset").click()
         time.sleep(0.5)
         self.driver.find_element(By.ID, "mainForm:ae_i_poe_e_description").send_keys(po_no)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:executeSearch").click()
@@ -56,18 +87,26 @@ class PurchaseOrder():
             item = item.upper()  # convert description to upper case
             line_item = WO + " - " + phase +"\n"+ item
             full_name = person.split(" ")
-            if first_PO:
-                self.driver.find_element(By.ID, "mainForm:menuListMain:search_PO_VIEW").click()
-                if self.search_PO(po_no):
-                    return None,"PO number already exists in AiM"
-                else:
-                    self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
+            cppo = self.search_WO(WO,phase)
+            self.driver.find_element(By.ID, "mainForm:menuListMain:search_PO_VIEW").click()
+            if self.search_PO(po_no):
+                return None, "PO number already exists in AiM"
             else:
-                self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
-                if self.search_PO(po_no):
-                    return None, "PO number already exists in AiM"
-                else:
-                    self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
+                print ("!@!")
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
+                print ("sdaasdasdasdasda")
+            # if first_PO:
+            #     self.driver.find_element(By.ID, "mainForm:menuListMain:search_PO_VIEW").click()
+            #     if self.search_PO(po_no):
+            #         return None,"PO number already exists in AiM"
+            #     else:
+            #         self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
+            # else:
+            #     self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
+            #     if self.search_PO(po_no):
+            #         return None, "PO number already exists in AiM"
+            #     else:
+            #         self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             """PO main page"""
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, 'mainForm:PO_EDIT_content:ae_i_poe_e_description')))
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
@@ -234,8 +273,9 @@ def write_to_log(file_location,row,aim_po,error,col_num):
 
 
 if __name__ == '__main__':
-    file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
-
+    # file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
+    #TODO: remember to revoke file path
+    file_loc = glob.glob(r'C:\Users\yzong\Desktop\Project\\47 - Purchase RPA\excel file\*.xlsx')[0]
 
     new_po = PurchaseOrder()
     new_po.setup_method()
@@ -249,8 +289,8 @@ if __name__ == '__main__':
     saved_PO=[]
     for i in range(sheet.shape[0]):
         saved_PO = list(set(saved_PO))
-        po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,material = sheet.iloc[i,:11].values
-        currency,_ = sheet.iloc[i,11:13].values
+        po_no,_, supplier_no,person, item, line_total, WO, phase,CP,_,_,_,material = sheet.iloc[i,:13].values
+        currency,_ = sheet.iloc[i,13:15].values
         if pd.notna(CP):
             #TODO: handle the PO with CP number
             print ("row {} is NOT processed, as CP is not null".format(i+2))
@@ -273,5 +313,4 @@ if __name__ == '__main__':
     print("Done! Time taken: {:.2f}s ({:.2f}min)".format(time_taken, time_taken / 60.))
     print("Please go to excel file to double check")
     print("***************************************")
-
 
