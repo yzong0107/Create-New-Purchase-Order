@@ -92,9 +92,7 @@ class PurchaseOrder():
             if self.search_PO(po_no):
                 return None, "PO number already exists in AiM"
             else:
-                print ("!@!")
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
-                print ("sdaasdasdasdasda")
             # if first_PO:
             #     self.driver.find_element(By.ID, "mainForm:menuListMain:search_PO_VIEW").click()
             #     if self.search_PO(po_no):
@@ -118,7 +116,10 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("3")
             else:
                 self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:termsZoom:termsZoom01").send_keys("1")
-            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("e-pro")
+            if cppo is None:
+                self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("e-pro")
+            else:
+                self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("cppo")
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:placedbyZoom:placedbyZoom0").clear()
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AplacedbyZoom\\3AplacedbyZoom0_button > .halflings").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
@@ -134,8 +135,17 @@ class PurchaseOrder():
             dropdown = self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:disbDefaultsLineItem")
             dropdown.find_element(By.XPATH, "//option[. = 'Service']").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:disbDefaultsLineItem").click()
-            self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AtermsZoom\\3AtermsZoom01_button > .halflings").click()
-            time.sleep(0.5)
+            # self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AtermsZoom\\3AtermsZoom01_button > .halflings").click()
+            # time.sleep(0.5)
+            if cppo is None:
+                self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AtermsZoom\\3AtermsZoom01_button > .halflings").click()
+                time.sleep(0.5)
+            else:
+                self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3ApoStatusTypeZoom\\3Alevel0_button > .halflings").click()
+                time.sleep(0.5)
+                self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:projectContract:level0").send_keys(cppo)
+                self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AtermsZoom\\3AtermsZoom01_button > .halflings").click()
+                time.sleep(0.5)
             try:
                 """Line item"""
                 self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
