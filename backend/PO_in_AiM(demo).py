@@ -138,8 +138,9 @@ class PurchaseOrder():
                 time.sleep(0.5)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:placedbyZoom:placedbyZoom0").clear()
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AplacedbyZoom\\3AplacedbyZoom0_button > .halflings").click()
-            time.sleep(0.5)
+            time.sleep(0.3)
             self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
+            time.sleep(0.3)
             self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_fname").send_keys(full_name[0])
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_fname").get_attribute("value") == full_name[0])
             self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_lname").send_keys(full_name[-1])
@@ -194,6 +195,7 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value")=="finalized")
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+            time.sleep(0.5)
             aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
             return aim_po,None
         except NoSuchElementException:
