@@ -83,7 +83,9 @@ class PurchaseOrder():
     def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,currency):
         try:
             if pd.isna(WO): WO=""
+            else: WO=WO.strip()
             if pd.isna(phase): phase = ""
+            else: phase=phase.strip()
             item = item.upper()  # convert description to upper case
             line_item = WO + " - " + phase +"\n"+ item
             full_name = person.split(" ")
@@ -96,8 +98,10 @@ class PurchaseOrder():
 
             """PO main page"""
             WebDriverWait(self.driver, 10).until(EC.visibility_of_element_located((By.ID, 'mainForm:PO_EDIT_content:ae_i_poe_e_description')))
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").send_keys(item)
             WebDriverWait(self.driver,5).until(lambda driver:self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:ae_i_poe_e_description").get_attribute("value")==item)
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").send_keys(supplier_no)
             WebDriverWait(self.driver,5).until(lambda driver:self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom0").get_attribute("value")==supplier_no)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:contractorZoom:contractorZoom1").send_keys("1")
@@ -113,10 +117,13 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").send_keys("cppo")
                 WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusTypeZoom:level0").get_attribute("value") == "cppo")
 
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("open")
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value") == "open")
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").send_keys(WO)
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").get_attribute("value") == WO)
+            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultPhase").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultPhase").send_keys(phase)
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultPhase").get_attribute("value") == phase)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:disbDefaultsLineItem").click()
@@ -195,7 +202,7 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value")=="finalized")
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
-            time.sleep(0.5)
+            WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID,"mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order")))
             aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
             return aim_po,None
         except NoSuchElementException:
@@ -208,6 +215,8 @@ class PurchaseOrder():
 
     def multiple_lines(self,item,WO,phase,line_total,material):
         """Change status back to open"""
+        WO = WO.strip()
+        phase = phase.strip()
         line_item = WO + " - " + phase + "\n" + item.upper() #update on May 13, 2020
         self.driver.find_element(By.ID, "mainForm:buttonPanel:edit").click()
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
@@ -269,6 +278,7 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
         WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value") == "finalized")
         self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order")))
         aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
         return aim_po, None
 
