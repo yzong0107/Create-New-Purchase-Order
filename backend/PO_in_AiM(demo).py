@@ -206,10 +206,10 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:buttonControls:yes").click()
             except NoSuchElementException:
                 pass
-            WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID,"mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order")))
+            WebDriverWait(self.driver,5).until(EC.presence_of_element_located((By.ID,"mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order")))
             aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
             return aim_po,None
-        except NoSuchElementException:
+        except:
             try:
                 error_message = self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:messages").text
             except NoSuchElementException:
