@@ -202,6 +202,10 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value")=="finalized")
             self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+            try:
+                self.driver.find_element(By.ID, "mainForm:buttonControls:yes").click()
+            except NoSuchElementException:
+                pass
             WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID,"mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order")))
             aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
             return aim_po,None
@@ -278,6 +282,10 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("finalized")
         WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value") == "finalized")
         self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+        try:
+            self.driver.find_element(By.ID, "mainForm:buttonControls:yes").click()
+        except NoSuchElementException:
+            pass
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order")))
         aim_po = self.driver.find_element(By.ID, "mainForm:PO_VIEW_content:ae_i_poe_e_purchase_order").text
         return aim_po, None
