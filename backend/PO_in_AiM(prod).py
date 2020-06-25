@@ -182,6 +182,8 @@ class PurchaseOrder():
                 error_message = "Please type in 'Material' or 'Contract' to indicate this PO's subledger"
                 return None,error_message
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
+            self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:link").click()
+            time.sleep(1)
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
             try:#2020-04-30: when WO or phase is empty
                 """UDF"""
