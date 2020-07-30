@@ -145,9 +145,9 @@ class PurchaseOrder():
                 time.sleep(0.5)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:placedbyZoom:placedbyZoom0").clear()
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3APO_EDIT_content\\3AplacedbyZoom\\3AplacedbyZoom0_button > .halflings").click()
-            time.sleep(0.3)
+            time.sleep(0.5)
             self.driver.find_element(By.ID, "mainForm:buttonPanel:search").click()
-            time.sleep(0.3)
+            time.sleep(0.5)
             self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_fname").send_keys(full_name[0])
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_fname").get_attribute("value") == full_name[0])
             self.driver.find_element(By.ID, "mainForm:ae_h_emp_e_lname").send_keys(full_name[-1])
@@ -225,6 +225,7 @@ class PurchaseOrder():
         phase = phase.strip()
         line_item = WO + " - " + phase + "\n" + item.upper() #update on May 13, 2020
         self.driver.find_element(By.ID, "mainForm:buttonPanel:edit").click()
+        time.sleep(0.5)
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").clear()
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("open")
         WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value") == "open")
@@ -233,8 +234,9 @@ class PurchaseOrder():
         """Add a new line"""
         self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:oldPoLineItemsList:addLineItemButton").click()
         self.driver.find_element(By.ID, "mainForm:PO_ADD_LINE_ITEM_content:inentorytype3").click()
-        time.sleep(0.2)
+        time.sleep(0.5)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:zoomNext").click()
+        time.sleep(0.5)
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").click()
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:ae_i_poe_d_vend_dsc").send_keys(line_item)
         WebDriverWait(self.driver, 5).until(
