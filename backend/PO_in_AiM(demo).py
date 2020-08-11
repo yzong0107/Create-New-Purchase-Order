@@ -259,6 +259,7 @@ class PurchaseOrder():
             return None, error_message
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
         self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:oldPoDisburList:0:seqLink").click()
+        time.sleep(0.5)
         try:
             cppo = self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:cpValue").text
             WO_id = "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:wophaseForCPZoom:wophaseZoom0"
@@ -275,6 +276,7 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
         time.sleep(0.5)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+        time.sleep(0.5)
 
         """Change status to Finalized"""
         try:
@@ -610,9 +612,7 @@ def write_to_log(file_location,row,aim_po,error,col_num):
 
 
 if __name__ == '__main__':
-    # file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
-    #TODO: remember to remove
-    file_loc = glob.glob(r'C:\Users\yzong\Desktop\Project\\47 - Purchase RPA\excel file\*.xlsx')[0]
+    file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
 
     new_po = PurchaseOrder()
     new_po.setup_method()
