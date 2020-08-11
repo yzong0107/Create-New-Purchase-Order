@@ -18,11 +18,14 @@
 
 # Important Notes for Users
 
-1. Before running the RPA program, the excel file should be edited. Column M's value should either be *"Material"* or *"Contract"*, indicating if this PO's subledger is "Material" or "Contract". Otherwise, the corresponding row won't be processed.
+1. Before running the RPA program, the excel file should be edited. 
+   * For non-CPPM lines,column M's value should either be *"Material"* or *"Contract"*, indicating if this PO's subledger is "Material" or "Contract"; for CPPM lines, Column M should be the CPPM type. Otherwise, the corresponding row won't be processed.
+   * For CPPM lines, column L should indicate whether it's a "construction" contract or a "consultant" contract. It's not case-sensitive, but spelling must be right.
 
 ![excel edit](images/excel_edit.png)
 
 2. Always check the downloads.xlsx after the program finishes. The program should log the PO code in AiM. Column P, Q and R are **auto generated** by this RPA program. Please manually check those error messages. Notice the new columns end with *"(demo)"* or *"(prod)"*
+   * For CPPM lines, column P will store the contract id saved in AiM system.
 
 ![excel output](images/excel_output.png)
 
