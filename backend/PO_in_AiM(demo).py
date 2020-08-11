@@ -24,13 +24,15 @@ class PurchaseOrder():
     def setup_method(self):
         self.driver = webdriver.Chrome()
         self.vars = {}
+        # TODO: remember to update demo to prod
+        self.instance="aimdemo"
 
     def teardown_method(self):
         self.driver.quit()
 
     def login(self):
-        #TODO: remember to update demo to prod
-        self.driver.get("https://www.aimdemo.ualberta.ca/fmax/screen/WORKDESK")
+        url = "https://www."+self.instance+".ualberta.ca/fmax/screen/WORKDESK"
+        self.driver.get(url)
         self.driver.set_window_size(1900, 1020)
         username = input('Enter your username: ')
         password = getpass.getpass('Enter your password : ')
@@ -341,6 +343,12 @@ class PurchaseOrder():
             self.driver.find_element(By.CSS_SELECTOR,
                                      "#mainForm\\3A CONSTRUCTION_CONTRACT_EDIT_content\\3A capitalProjectZoom\\3A capitalProjectZoomLevel0_button > .halflings").click()
             time.sleep(0.5)
+            cp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_CAPITAL_PROJECT"
+            if self.driver.current_url == cp_error_url:
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                return None, "CP# is not valid in AiM system"
+
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level0").click()
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level1").click()
@@ -363,6 +371,13 @@ class PurchaseOrder():
                 self.driver.find_element(By.CSS_SELECTOR,
                                          "#mainForm\\3A CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel0_button > .halflings").click()
                 time.sleep(0.5)
+                comp_error_url="https://www."+self.instance+".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
+                if self.driver.current_url==comp_error_url:
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    return None, "Component group/component is not valid in AiM system"
+
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:baseAmt").click()
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:baseAmt").send_keys(line_total)
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:link").click()
@@ -411,6 +426,12 @@ class PurchaseOrder():
             self.driver.find_element(By.CSS_SELECTOR,
                                      "#mainForm\\3A CONSULTING_CONTRACT_EDIT_content\\3A capitalProjectZoom\\3A capitalProjectZoomLevel0_button > .halflings").click()
             time.sleep(0.5)
+            cp_error_url="https://www."+self.instance+".ualberta.ca/fmax/screen/ZOOM_CAPITAL_PROJECT"
+            if self.driver.current_url==cp_error_url:
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                return None, "CP# is not valid in AiM system"
+
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level0").click()
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level1").click()
@@ -432,6 +453,13 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel2").send_keys(comp)
                 self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CONSULTING_CONTRACT_DETAIL_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel1_button > .halflings").click()
                 time.sleep(0.5)
+                comp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
+                if self.driver.current_url == comp_error_url:
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    return None, "Component group/component is not valid in AiM system"
+
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:awardAmt").click()
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:awardAmt").send_keys(line_total)
                 self.driver.find_element(By.CSS_SELECTOR, ".refreshLink").click()
@@ -483,6 +511,74 @@ class PurchaseOrder():
 
         return saved,error
 
+    def multiple_construction_lines(self,comp_gr,comp,line_total):
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:edit").click()
+        time.sleep(0.5)
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:oldConstructionContractLineItemsList:addLineItemButton").click()
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:projCompZoom:projCompZoomLevel0").click()
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:projCompZoom:projCompZoomLevel0").send_keys(comp_gr)
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:projCompZoom:projCompZoomLevel1").click()
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:projCompZoom:projCompZoomLevel1").send_keys(comp)
+        self.driver.find_element(By.CSS_SELECTOR,
+                                 "#mainForm\\3A CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel1_button > .halflings").click()
+        time.sleep(0.5)
+        comp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
+        if self.driver.current_url == comp_error_url:
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            return None, "Component group/component is not valid in AiM system"
+
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:baseAmt").click()
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:baseAmt").send_keys(line_total)
+        self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:link").click()
+        time.sleep(0.5)
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+
+        try:
+            error_message = self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:messages").text
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            return None, error_message
+        except:
+            WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.ID, "mainForm:CONSTRUCTION_CONTRACT_VIEW_content:ae_cp_construct_con_e_contract_no")))
+            construction_id = self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_VIEW_content:ae_cp_construct_con_e_contract_no").text
+            return construction_id, None
+
+    def multiple_consultant_lines(self,comp_gr,comp,line_total):
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:edit").click()
+        time.sleep(0.5)
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:oldSCLineItemsList:addLineItemButton").click()
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel1").click()
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel1").send_keys(comp_gr)
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel2").click()
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel2").send_keys(comp)
+        self.driver.find_element(By.CSS_SELECTOR,
+                                 "#mainForm\\3A CONSULTING_CONTRACT_DETAIL_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel2_button > .halflings").click()
+        time.sleep(0.5)
+        comp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
+        if self.driver.current_url == comp_error_url:
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            return None, "Component group/component is not valid in AiM system"
+
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:awardAmt").click()
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:awardAmt").send_keys(line_total)
+        self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:link").click()
+        time.sleep(0.5)
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+
+        try:
+            error_message = self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:messages").text
+            self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+            return None, error_message
+        except:
+            WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.ID, "mainForm:CONSULTING_CONTRACT_VIEW_content:ae_cp_consult_con_e_contract_no")))
+            consult_id = self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_VIEW_content:ae_cp_consult_con_e_contract_no").text
+            return consult_id, None
+
 def write_to_log_title(file_location,col_num):
     wb = openpyxl.load_workbook(file_location)
     ws = wb.worksheets[0]
@@ -532,9 +628,20 @@ if __name__ == '__main__':
         po_no,supp, supplier_no,person, item, line_total, WO, phase,CP,comp_gr,comp,contr_admin,subleger = sheet.iloc[i,:13].values
         currency,_ = sheet.iloc[i,13:15].values
         if pd.notna(CP):
-            #TODO: handle the PO with CP number
+            #handle the PO with CP number
+            if i>0:
+                if sheet.iloc[i,0]==sheet.iloc[i-1,0] and sheet.iloc[i,0] in saved_PO:
+                    if contr_admin.upper()=="CONSTRUCTION":
+                        cppm, error = new_po.multiple_construction_lines(comp_gr,comp,line_total)
+                    else:
+                        cppm, error = new_po.multiple_consultant_lines(comp_gr, comp, line_total)
+                    write_to_log(file_loc, i, cppm, error, col_num)
+                    print("row {} is processed, Contract id is : {}".format(i + 2, cppm))
+                    continue
             cppm,error = new_po.log_cp(po_no,supp,supplier_no,item,line_total,CP,comp_gr,comp,contr_admin,subleger,currency)
             write_to_log(file_loc,i,cppm,error,col_num)
+            if error is None:
+                saved_PO.append(sheet.iloc[i,0])
             print ("row {} is processed, contract id is : {}".format(i+2,cppm))
             continue
         else:
