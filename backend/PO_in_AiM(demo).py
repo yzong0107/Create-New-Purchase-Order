@@ -370,6 +370,7 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:projCompZoom:projCompZoomLevel0").send_keys(comp_gr)
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:projCompZoom:projCompZoomLevel1").click()
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content:projCompZoom:projCompZoomLevel1").send_keys(comp)
+                time.sleep(0.5)
                 self.driver.find_element(By.CSS_SELECTOR,
                                          "#mainForm\\3A CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel0_button > .halflings").click()
                 time.sleep(0.5)
@@ -453,6 +454,7 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel1").send_keys(comp_gr)
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel2").click()
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_DETAIL_EDIT_content:projCompZoom:projCompZoomLevel2").send_keys(comp)
+                time.sleep(0.5)
                 self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CONSULTING_CONTRACT_DETAIL_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel1_button > .halflings").click()
                 time.sleep(0.5)
                 comp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
@@ -488,7 +490,7 @@ class PurchaseOrder():
             return consult_id, None
 
     def log_cp(self,po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,contr_admin,type,currency):
-
+        contr_admin = contr_admin.strip()
         self.driver.find_element(By.ID, "mainForm:headerInclude:aimTitle1").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:CONTRACT").click()
         if contr_admin.upper()=="CONSTRUCTION":
