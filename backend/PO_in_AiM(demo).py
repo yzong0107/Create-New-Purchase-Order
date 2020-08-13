@@ -627,8 +627,8 @@ if __name__ == '__main__':
     saved_PO=[]
     for i in range(sheet.shape[0]):
         saved_PO = list(set(saved_PO))
-        po_no,supp, supplier_no,person, item, line_total, WO, phase,CP,comp_gr,comp,contr_admin,subleger = sheet.iloc[i,:13].values
-        currency,_ = sheet.iloc[i,13:15].values
+        po_no,supp, supplier_no,person, item, line_total, WO, phase,CP,comp_gr,comp,_,contr_admin,subleger = sheet.iloc[i,:14].values
+        currency,_ = sheet.iloc[i,14:16].values
         if pd.notna(CP):
             #handle the PO with CP number
             if i>0:
