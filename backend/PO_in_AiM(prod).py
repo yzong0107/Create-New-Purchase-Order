@@ -375,7 +375,8 @@ class PurchaseOrder():
                                          "#mainForm\\3A CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel0_button > .halflings").click()
                 time.sleep(0.5)
                 comp_error_url="https://www."+self.instance+".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
-                if self.driver.current_url==comp_error_url:
+                comp_gr_error_url = "https://www."+self.instance+".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_GROUP"
+                if self.driver.current_url==comp_error_url or self.driver.current_url==comp_gr_error_url:
                     self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                     self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                     self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
@@ -458,7 +459,8 @@ class PurchaseOrder():
                 self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CONSULTING_CONTRACT_DETAIL_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel1_button > .halflings").click()
                 time.sleep(0.5)
                 comp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
-                if self.driver.current_url == comp_error_url:
+                comp_gr_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_GROUP"
+                if self.driver.current_url == comp_error_url or self.driver.current_url == comp_gr_error_url:
                     self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                     self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                     self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
@@ -527,7 +529,8 @@ class PurchaseOrder():
                                  "#mainForm\\3A CONSTRUCTION_CONTRACT_LINE_ITEM_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel1_button > .halflings").click()
         time.sleep(0.5)
         comp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
-        if self.driver.current_url == comp_error_url:
+        comp_gr_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_GROUP"
+        if self.driver.current_url == comp_error_url or self.driver.current_url == comp_gr_error_url:
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
@@ -561,7 +564,8 @@ class PurchaseOrder():
                                  "#mainForm\\3A CONSULTING_CONTRACT_DETAIL_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel2_button > .halflings").click()
         time.sleep(0.5)
         comp_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
-        if self.driver.current_url == comp_error_url:
+        comp_gr_error_url = "https://www." + self.instance + ".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_GROUP"
+        if self.driver.current_url == comp_error_url or self.driver.current_url == comp_gr_error_url:
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
             self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
