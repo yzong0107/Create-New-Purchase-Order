@@ -83,7 +83,7 @@ class PurchaseOrder():
         except:
             return False
 
-    def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,material,currency):
+    def log_po(self,po_no,supplier_no,person,item,line_total,WO,phase,cp,comp_gr,comp,material,currency):
         try:
             if pd.isna(WO): WO=""
             else: WO=WO.strip()
@@ -92,7 +92,11 @@ class PurchaseOrder():
             item = item.upper()  # convert description to upper case
             line_item = WO + " - " + phase +"\n"+ item
             full_name = person.split(" ",1)
-            cppo = self.search_WO(WO,phase)
+            if pd.notna(cp) and pd.notna(comp_gr) and pd.notna(comp):
+                self.driver.find_element(By.ID, "mainForm:headerInclude:aimTitle1").click()
+                self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
+                cppo=cp
+            else:cppo = self.search_WO(WO,phase)
             self.driver.find_element(By.ID, "mainForm:menuListMain:search_PO_VIEW").click()
             if self.search_PO(po_no):
                 return None, "PO number already exists in AiM"
@@ -187,6 +191,33 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:subledgerValue").click()
             self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:link").click()
             time.sleep(1)
+            if pd.notna(cp) and pd.notna(comp_gr) and pd.notna(comp):
+                #2020-09-22: when CP without WO/Phase, use cppo
+                self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_EDIT_content:oldPoDisburList:0:seqLink").click()
+                time.sleep(1)
+                self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:projCompZoom:projCompZoomLevel0").send_keys(comp_gr)
+                self.driver.find_element(By.ID, "mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:projCompZoom:projCompZoomLevel1").send_keys(comp)
+                self.driver.find_element(By.CSS_SELECTOR,
+                                         "#mainForm\\3APO_LINE_ITEM_DISBUR_EDIT_content\\3AprojCompZoom\\3AprojCompZoomLevel1_button > .halflings").click()
+                time.sleep(0.5)
+                comp_gr_url = "https://www."+self.instance+".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_NO_TIME"
+                comp_url = "https://www."+self.instance+".ualberta.ca/fmax/screen/ZOOM_PROJECT_COMPONENT_GROUP"
+                if self.driver.current_url==comp_gr_url or self.driver.current_url==comp_url:
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    return None,"Component group/component is not valid in AiM system"
+                self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
+                time.sleep(1)
+                try:
+                    error_message = self.driver.find_element(By.ID,"mainForm:PO_LINE_ITEM_DISBUR_EDIT_content:messages").text
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
+                    return None,error_message
+                except:
+                    pass
             self.driver.find_element(By.ID, "mainForm:buttonPanel:done").click()
             try:#2020-04-30: when WO or phase is empty
                 """UDF"""
@@ -634,7 +665,7 @@ if __name__ == '__main__':
         po_no,supp, supplier_no,person, item, line_total, WO, phase,CP,comp_gr,comp,_,contr_admin,subleger = sheet.iloc[i,:14].values
         contr_admin = contr_admin.strip()
         currency,_ = sheet.iloc[i,14:16].values
-        if pd.notna(CP):
+        if pd.notna(CP) and pd.notna(contr_admin)and contr_admin!="None":
             #handle the PO with CP number
             if i>0:
                 if sheet.iloc[i,0]==sheet.iloc[i-1,0] and sheet.iloc[i,0] in saved_PO:
@@ -658,7 +689,7 @@ if __name__ == '__main__':
                     write_to_log(file_loc, i, aim_po, error,col_num)
                     print("row {} is processed, AiM PO is : {}".format(i + 2, aim_po))
                     continue
-            aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,subleger,currency)
+            aim_po,error = new_po.log_po(po_no, supplier_no,person, item, line_total, WO, phase,CP,comp_gr,comp,subleger,currency)
             write_to_log(file_loc,i,aim_po,error,col_num)
             if error is None:
                 saved_PO.append(sheet.iloc[i,0])
