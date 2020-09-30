@@ -657,6 +657,7 @@ if __name__ == '__main__':
 
     start_time = time.time()
     sheet = pd.read_excel(file_loc, dtype=str)
+    sheet = sheet.applymap(lambda x: x.strip() if pd.notna(x) else x)
     col_num = sheet.shape[1]
     write_to_log_title(file_loc,col_num)
     saved_PO=[]
