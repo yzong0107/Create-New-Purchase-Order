@@ -386,12 +386,12 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level1").click()
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level1").send_keys("1")
-            if currency=="CAD":
-                self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:termsZoomFc:level0").click()
-                self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:termsZoomFc:level0").send_keys("1")
-            else:
+            if currency=="USD":
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:termsZoomFc:level0").click()
                 self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:termsZoomFc:level0").send_keys("3")
+            else:
+                self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:termsZoomFc:level0").click()
+                self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:termsZoomFc:level0").send_keys("1")
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CONSTRUCTION_CONTRACT_EDIT_content\\3AtermsZoomFc\\3Alevel0_button > .halflings").click()
             time.sleep(0.5)
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:oldConstructionContractLineItemsList:addLineItemButton").click()
@@ -471,12 +471,12 @@ class PurchaseOrder():
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level0").send_keys(supplier_no)
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level1").click()
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level1").send_keys("1")
-            if currency=="CAD":
-                self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:termsZoomFc:level0").click()
-                self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:termsZoomFc:level0").send_keys("1")
-            else:
+            if currency=="USD":
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:termsZoomFc:level0").click()
                 self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:termsZoomFc:level0").send_keys("3")
+            else:
+                self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:termsZoomFc:level0").click()
+                self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:termsZoomFc:level0").send_keys("1")
             self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CONSULTING_CONTRACT_EDIT_content\\3AtermsZoomFc\\3Alevel0_button > .halflings").click()
             time.sleep(0.5)
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:oldSCLineItemsList:addLineItemButton").click()
@@ -665,7 +665,7 @@ if __name__ == '__main__':
         saved_PO = list(set(saved_PO))
         po_no,supp, supplier_no,person, item, line_total, WO, phase,CP,comp_gr,comp,_,contr_admin,subleger = sheet.iloc[i,:14].values
         contr_admin = contr_admin.strip()
-        currency,_ = sheet.iloc[i,14:16].values
+        _,currency,_ = sheet.iloc[i,14:17].values
         if pd.notna(CP) and pd.notna(contr_admin)and contr_admin!="None":
             #handle the PO with CP number
             if i>0:
