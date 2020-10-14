@@ -352,8 +352,9 @@ class PurchaseOrder():
             except NoSuchElementException:
                 return False
 
-    def log_cp_construction(self,po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,currency):
+    def log_cp_construction(self,po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,order_date,currency):
         description = supplier + "\n" + item + "\n" + po_no + "\n"
+        end_date = order_date.replace(year=order_date.year+1)
         try:
             self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:ae_cp_construct_con_e_description").click()
@@ -381,6 +382,14 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                 return None, "CP# is not valid in AiM system"
+
+            """Oct 14, 2020: add start/award/end date"""
+            self.driver.find_element(By.ID,"mainForm:CONSTRUCTION_CONTRACT_EDIT_content:fromdateLabel").click()
+            self.driver.find_element(By.ID,"mainForm:CONSTRUCTION_CONTRACT_EDIT_content:fromdateLabel").send_keys(order_date.strftime('%Y-%m-%d'))
+            self.driver.find_element(By.ID,"mainForm:CONSTRUCTION_CONTRACT_EDIT_content:rqdateLabel").click()
+            self.driver.find_element(By.ID,"mainForm:CONSTRUCTION_CONTRACT_EDIT_content:rqdateLabel").send_keys(order_date.strftime('%Y-%m-%d'))
+            self.driver.find_element(By.ID,"mainForm:CONSTRUCTION_CONTRACT_EDIT_content:todateLabel").click()
+            self.driver.find_element(By.ID,"mainForm:CONSTRUCTION_CONTRACT_EDIT_content:todateLabel").send_keys(end_date.strftime('%Y-%m-%d'))
 
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level0").click()
             self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_EDIT_content:contractorZoom:level0").send_keys(supplier_no)
@@ -438,8 +447,9 @@ class PurchaseOrder():
             construction_id = self.driver.find_element(By.ID, "mainForm:CONSTRUCTION_CONTRACT_VIEW_content:ae_cp_construct_con_e_contract_no").text
             return construction_id,None
 
-    def log_cp_consultant(self,po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,currency):
+    def log_cp_consultant(self,po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,order_date,currency):
         description = supplier + "\n" + item + "\n" + po_no + "\n"
+        end_date = order_date.replace(year=order_date.year+1)
         try:
             self.driver.find_element(By.ID, "mainForm:buttonPanel:new").click()
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:ae_cp_consult_con_e_description").click()
@@ -466,6 +476,14 @@ class PurchaseOrder():
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                 self.driver.find_element(By.ID, "mainForm:buttonPanel:cancel").click()
                 return None, "CP# is not valid in AiM system"
+
+            """Oct 14, 2020: add start/award/end date"""
+            self.driver.find_element(By.ID,"mainForm:CONSULTING_CONTRACT_EDIT_content:fromdateLabel").click()
+            self.driver.find_element(By.ID,"mainForm:CONSULTING_CONTRACT_EDIT_content:fromdateLabel").send_keys(order_date.strftime('%Y-%m-%d'))
+            self.driver.find_element(By.ID,"mainForm:CONSULTING_CONTRACT_EDIT_content:rqdateLabel").click()
+            self.driver.find_element(By.ID,"mainForm:CONSULTING_CONTRACT_EDIT_content:rqdateLabel").send_keys(order_date.strftime('%Y-%m-%d'))
+            self.driver.find_element(By.ID,"mainForm:CONSULTING_CONTRACT_EDIT_content:todateLabel").click()
+            self.driver.find_element(By.ID,"mainForm:CONSULTING_CONTRACT_EDIT_content:todateLabel").send_keys(end_date.strftime('%Y-%m-%d'))
 
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level0").click()
             self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_EDIT_content:contractorZoom:level0").send_keys(supplier_no)
@@ -522,7 +540,7 @@ class PurchaseOrder():
             consult_id = self.driver.find_element(By.ID, "mainForm:CONSULTING_CONTRACT_VIEW_content:ae_cp_consult_con_e_contract_no").text
             return consult_id, None
 
-    def log_cp(self,po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,contr_admin,type,currency):
+    def log_cp(self,po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,contr_admin,type,order_date,currency):
         contr_admin = contr_admin.strip()
         self.driver.find_element(By.ID, "mainForm:headerInclude:aimTitle1").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:CONTRACT").click()
@@ -542,9 +560,9 @@ class PurchaseOrder():
 
         """create a new record"""
         if contr_admin.upper()=="CONSTRUCTION":
-            saved,error = self.log_cp_construction(po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,currency)
+            saved,error = self.log_cp_construction(po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,order_date,currency)
         else: #consultant
-            saved, error = self.log_cp_consultant(po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,currency)
+            saved, error = self.log_cp_consultant(po_no,supplier,supplier_no,item,line_total,cp,comp_gr,comp,type,order_date,currency)
 
         return saved,error
 
@@ -650,7 +668,6 @@ def write_to_log(file_location,row,aim_po,error,col_num):
 
 if __name__ == '__main__':
     file_loc = glob.glob('V:\Purchasing Astro Boy\commitment files\Input\*.xlsx')[0]  # assuming only 1 excel file in this folder
-
     new_po = PurchaseOrder()
     new_po.setup_method()
     new_po.login()
@@ -665,7 +682,8 @@ if __name__ == '__main__':
         saved_PO = list(set(saved_PO))
         po_no,supp, supplier_no,person, item, line_total, WO, phase,CP,comp_gr,comp,_,contr_admin,subleger = sheet.iloc[i,:14].values
         contr_admin = contr_admin.strip()
-        _,currency,_ = sheet.iloc[i,14:17].values
+        order_date,currency,_ = sheet.iloc[i,14:17].values
+        order_date = datetime.strptime(order_date[:6]+'20'+order_date[-2:],'%m/%d/%Y')
         if pd.notna(CP) and pd.notna(contr_admin)and contr_admin!="None":
             #handle the PO with CP number
             if i>0:
@@ -677,7 +695,7 @@ if __name__ == '__main__':
                     write_to_log(file_loc, i, cppm, error, col_num)
                     print("row {} is processed, Contract id is : {}".format(i + 2, cppm))
                     continue
-            cppm,error = new_po.log_cp(po_no,supp,supplier_no,item,line_total,CP,comp_gr,comp,contr_admin,subleger,currency)
+            cppm,error = new_po.log_cp(po_no,supp,supplier_no,item,line_total,CP,comp_gr,comp,contr_admin,subleger,order_date,currency)
             write_to_log(file_loc,i,cppm,error,col_num)
             if error is None:
                 saved_PO.append(sheet.iloc[i,0])
