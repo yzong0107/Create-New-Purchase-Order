@@ -19,10 +19,11 @@ import openpyxl
 from datetime import datetime
 import glob
 import numpy as np
+from webdriver_manager.chrome import ChromeDriverManager
 
 class PurchaseOrder():
     def setup_method(self):
-        self.driver = webdriver.Chrome()
+        self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
         self.vars = {}
         # TODO: remember to update demo to prod
         self.instance="aimprod"
