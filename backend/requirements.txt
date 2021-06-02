@@ -37,7 +37,7 @@ selenium==3.141.0
 six==1.14.0
 soupsieve==2.2.1
 tqdm==4.60.0
-urllib3==1.25.7
+urllib3==1.26.5
 wcwidth==0.1.9
 webdriver-manager==2.4.0
 webdrivermanager==0.10.0
