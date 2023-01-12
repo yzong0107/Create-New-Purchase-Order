@@ -56,4 +56,5 @@
 ![show hidden files](images/screenshots2.PNG)
 
 7. Run the run_demo.bat, it will call PO_in_AiM(demo).py, and check if everything works.
+
 8. The current design is to download the latest ***Chrome Webdriver*** automatically when running the program, no need to manually download the webdriver.
