@@ -23,7 +23,17 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 class PurchaseOrder():
     def setup_method(self):
-        self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
+        options = webdriver.ChromeOptions()
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--disable-extensions")
+        # options.add_argument("--no-sandbox")
+        options.add_argument("--remote-debugging-port=9222")
+        # options.add_argument("--headless")
+
+        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+        self.driver.maximize_window()
+
         self.vars = {}
         # TODO: remember to update demo to prod
         self.instance="aimprod"
@@ -34,7 +44,7 @@ class PurchaseOrder():
     def login(self):
         url = "https://www."+self.instance+".ualberta.ca/fmax/screen/WORKDESK"
         self.driver.get(url)
-        self.driver.set_window_size(1900, 1020)
+        # self.driver.set_window_size(1900, 1020)
         username = input('Enter your username: ')
         password = getpass.getpass('Enter your password : ')
         self.driver.find_element(By.ID, "username").send_keys(username)
@@ -43,13 +53,19 @@ class PurchaseOrder():
         self.driver.find_element(By.ID, "mainForm:menuListMain:PURCHASING").click()
 
     def search_WO(self,WO,phase):
+        # time.sleep(5)
         self.driver.find_element(By.ID, "mainForm:headerInclude:aimTitle1").click()
+        # time.sleep(5)
         self.driver.find_element(By.ID, "mainForm:menuListMain:WORKMGT").click()
+        # time.sleep(1)
         self.driver.find_element(By.ID, "mainForm:menuListMain:search_WO_VIEW").click()
+        # time.sleep(1)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:reset").click()
         self.driver.find_element(By.ID, "mainForm:ae_p_pro_e_proposal").click()
+        # time.sleep(1)
         self.driver.find_element(By.ID, "mainForm:ae_p_pro_e_proposal").send_keys(WO)
         self.driver.find_element(By.ID, "mainForm:ae_p_phs_e_sort_code").click()
+        # time.sleep(1)
         self.driver.find_element(By.ID, "mainForm:ae_p_phs_e_sort_code").send_keys(phase)
         self.driver.find_element(By.ID, "mainForm:buttonPanel:executeSearch").click()
         try:
@@ -127,8 +143,9 @@ class PurchaseOrder():
 
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").send_keys("open")
-            WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value") == "open")
-            self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").click()
+            time.sleep(1)
+            # WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:poStatusZoom:level0").get_attribute("value") == "open")
+            # self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").click()
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").send_keys(WO)
             WebDriverWait(self.driver, 5).until(lambda driver: self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultWorkOrder").get_attribute("value") == WO)
             self.driver.find_element(By.ID, "mainForm:PO_EDIT_content:defaultWoZoom:defaultPhase").click()
