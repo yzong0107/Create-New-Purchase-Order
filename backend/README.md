@@ -35,11 +35,11 @@
 
 # Install the program (for developers only)
 
-1. Install [Miniconda (Python3.7)](https://docs.conda.io/en/latest/miniconda.html)  on your local machine. You can access conda via the console, to make sure it's properly installed please run `conda -V` to display the version.
+1. Install [Miniconda (Python)](https://docs.conda.io/en/latest/miniconda.html)  on your local machine. You can access conda via the console, to make sure it's properly installed please run `conda -V` to display the version, and run `python -V` to display the version..
 
-2. Create new virtual environment. Open Anaconda Prompt and run:
+2. Create new virtual environment. Open Anaconda Prompt and run (taken an example of python 3.10):
 
-   ```conda create --name selenium_env python==3.7 –y```
+   ```conda create --name selenium_env python==3.10 –y```
 
 3. Once it's created you can activate it by running: 
 
@@ -55,5 +55,5 @@
 
 ![show hidden files](images/screenshots2.PNG)
 
-7. Run the run_demo.bat, it will call HMS_to_AiM(demo).py, and check if everything works.
-8. Maybe need to download chrome webdriver, check user's ***chrome version***, and download it. Added to environmental variables.
+7. Run the run_demo.bat, it will call PO_in_AiM(demo).py, and check if everything works.
+8. The current design is to download the latest ***Chrome Webdriver*** automatically when running the program, no need to manually download the webdriver.
